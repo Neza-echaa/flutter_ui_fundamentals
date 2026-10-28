@@ -115,7 +115,7 @@ class ResponsiveShell extends StatefulWidget {
   @override
   State<ResponsiveShell> createState() => _ResponsiveShellState();
 }
-
+//2415051035_Neza Aulia safitri
 class _ResponsiveShellState extends State<ResponsiveShell> {
   int selectedIndex = 0;
 
@@ -214,7 +214,7 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
       },
     );
   }
-
+//2415051035_Neza Aulia Safitri
   void toggleFavorite(Course course) {
     setState(() {
       if (favoriteCourses.contains(course.code)) {
