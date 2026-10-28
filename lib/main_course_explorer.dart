@@ -581,8 +581,9 @@ class CoursesPage extends StatelessWidget {
 // ============================================================
 // COURSE DETAIL PAGE
 // ============================================================
-
-class CourseDetailPage extends StatelessWidget {
+// Nama: Neza Aulia Safitri
+// NIM: 2415051035
+class CourseDetailPage extends StatefulWidget {
   final Course course;
 
   const CourseDetailPage({
@@ -591,7 +592,16 @@ class CourseDetailPage extends StatelessWidget {
   });
 
   @override
+  State<CourseDetailPage> createState() =>
+      _CourseDetailPageState();
+}
+
+class _CourseDetailPageState extends State<CourseDetailPage> {
+  bool showDescription = true;
+
+  @override
   Widget build(BuildContext context) {
+    final course = widget.course;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Course Detail'),
@@ -645,22 +655,40 @@ class CourseDetailPage extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            const Text(
-              'Deskripsi',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+// Nama: Neza Aulia Safitri
+// NIM: 2415051035
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Deskripsi',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      showDescription = !showDescription;
+                    });
+                  },
+                  child: Text(
+                    showDescription ? 'Sembunyikan' : 'Tampilkan',
+                  ),
+                ),
+              ],
             ),
 
             const SizedBox(height: 8),
 
-            Text(
-              course.description,
-              style: const TextStyle(
-                fontSize: 16,
+            if (showDescription)
+              Text(
+                course.description,
+                style: const TextStyle(
+                  fontSize: 16,
+                ),
               ),
-            ),
 
             const SizedBox(height: 32),
 
