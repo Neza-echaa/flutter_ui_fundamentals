@@ -120,13 +120,15 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
   int selectedIndex = 0;
 
   final Set<String> favoriteCourses = {};
-
+//2415051035_Neza Aulia Safitri
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final pages = [
           HomePage(
+            favoriteCourses: favoriteCourses,
+            onToggleFavorite: toggleFavorite,
             onOpenCourses: () {
               setState(() {
                 selectedIndex = 1;
@@ -356,17 +358,22 @@ class CourseCard extends StatelessWidget {
 // ============================================================
 // HOME PAGE
 // ============================================================
+//2415051035_Neza Aulia Safitri
 
 class HomePage extends StatelessWidget {
-  final VoidCallback onOpenCourses;
+    final VoidCallback onOpenCourses;
+    final Set<String> favoriteCourses;
+    final Function(Course) onToggleFavorite;
 
-  const HomePage({
-    super.key,
-    required this.onOpenCourses,
-  });
+    const HomePage({
+      super.key,
+      required this.onOpenCourses,
+      required this.favoriteCourses,
+      required this.onToggleFavorite,
+    });
 
-  @override
-  Widget build(BuildContext context) {
+    @override
+    Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Course Explorer'),
@@ -396,9 +403,32 @@ class HomePage extends StatelessWidget {
             const SizedBox(height: 24),
 
             // REUSABLE WIDGET 2
+            //2415051035_Neza Aulia Safitri
             const StudentIdentityCard(),
 
             const SizedBox(height: 24),
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.favorite),
+                title: const Text('Course Favorit'),
+                subtitle: Text(
+                  '${favoriteCourses.length} course ditandai sebagai favorit',
+                ),
+                trailing: IconButton(
+                  tooltip: 'Toggle favorite',
+                  icon: Icon(
+                    favoriteCourses.contains(courses.first.code)
+                        ? Icons.favorite
+                        : Icons.favorite_border,
+                  ),
+                  onPressed: () {
+                    onToggleFavorite(courses.first);
+                  },
+                ),
+              ),
+            ),
+
+const SizedBox(height: 24),
 
             Card(
               child: Padding(
@@ -524,8 +554,8 @@ class CoursesPage extends StatelessWidget {
                       SnackBar(
                         content: Text(
                           favoriteCourses.contains(course.code)
-                              ? '${course.title} dihapus dari favorite'
-                              : '${course.title} ditambahkan ke favorite',
+                              ? '${course.title} ditambahkan dari favorite'
+                              : '${course.title} dihapus ke favorite',
                         ),
                       ),
                     );
@@ -563,8 +593,8 @@ class CoursesPage extends StatelessWidget {
                     SnackBar(
                       content: Text(
                         favoriteCourses.contains(course.code)
-                            ? '${course.title} dihapus dari favorite'
-                            : '${course.title} ditambahkan ke favorite',
+                            ? '${course.title} ditambahkan dari favorite'
+                            : '${course.title} dihapus ke favorite',
                       ),
                     ),
                   );
