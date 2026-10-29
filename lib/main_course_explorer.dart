@@ -2,88 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'course_state.dart';
 import 'models/course.dart';
-import 'services/course_service.dart';
+
 
 const String studentName = 'Neza Aulia Safitri';
 const String studentId = '2415051035';
 
-
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  final service = CourseService();
-  final loadedCourses = await service.loadCourses();
-
-  debugPrint('Jumlah course: ${loadedCourses.length}');
-
-  for (final course in loadedCourses) {
-    debugPrint('${course.code} - ${course.title}');
-  }
-
+void main() {
   runApp(
     ChangeNotifierProvider(
-      create: (_) => CourseState(),
+      create: (_) => CourseState()..loadCourses(),
       child: const CourseExplorerApp(),
     ),
   );
 }
 
-
-
-// ============================================================
-// DATA COURSE
-// ============================================================
-
-const List<Course> courses = [
-  Course(
-    title: 'Pemrograman Mobile',
-    code: 'PMB101',
-    credits: 3,
-    status: 'Aktif',
-    description:
-        'Mempelajari pengembangan aplikasi mobile menggunakan Flutter dan Dart.',
-  ),
-  Course(
-    title: 'Basis Data',
-    code: 'BD201',
-    credits: 3,
-    status: 'Aktif',
-    description:
-        'Mempelajari konsep basis data, SQL, relasi, dan pengelolaan data.',
-  ),
-  Course(
-    title: 'Pemrograman Web',
-    code: 'WEB201',
-    credits: 3,
-    status: 'Aktif',
-    description:
-        'Mempelajari pengembangan aplikasi berbasis web menggunakan teknologi modern.',
-  ),
-  Course(
-    title: 'Kecerdasan Buatan',
-    code: 'AI301',
-    credits: 3,
-    status: 'Aktif',
-    description:
-        'Mempelajari konsep dasar kecerdasan buatan dan penerapannya.',
-  ),
-  Course(
-    title: 'Metode Penelitian',
-    code: 'MP301',
-    credits: 2,
-    status: 'Aktif',
-    description:
-        'Mempelajari metode dan proses penelitian dalam bidang teknologi informasi.',
-  ),
-  Course(
-    title: 'Design Thinking',
-    code: 'DT201',
-    credits: 2,
-    status: 'Aktif',
-    description:
-        'Mempelajari proses pemecahan masalah secara kreatif dan berorientasi pengguna.',
-  ),
-];
 
 // ============================================================
 // APP
@@ -431,16 +363,23 @@ class HomePage extends StatelessWidget {
                 ),
                 trailing: Consumer<CourseState>(
                   builder: (context, state, child) {
-                    final isFavorite =
-                        state.favorites.contains(courses.first.code);
+                    final firstCourse =
+                        state.courses.isNotEmpty ? state.courses.first : null;
+
+                    final isFavorite = firstCourse != null &&
+                        state.favorites.contains(firstCourse.code);
                     return IconButton(
                       tooltip: 'Toggle favorite',
                       icon: Icon(
                         isFavorite ? Icons.favorite : Icons.favorite_border,
                       ),
-                      onPressed: () {
-                        context.read<CourseState>().toggleFavorite(courses.first.code);
-                      },
+                      onPressed: firstCourse == null
+                        ? null
+                        : () {
+                            context
+                                .read<CourseState>()
+                                .toggleFavorite(firstCourse.code);
+                          },
                     );
                   },
                 ),
@@ -569,6 +508,7 @@ class StudentIdentityCard extends StatelessWidget {
 
 
 
+
 class CoursesPage extends StatelessWidget {
   const CoursesPage({super.key});
 
@@ -592,91 +532,83 @@ class CoursesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = context.watch<CourseState>();
 
-    final sampleJson = <String, dynamic>{
-      'code': 'PTI101',
-      'title': 'Pemrograman Dasar',
-      'credits': 3,
-      'status': 'Aktif',
-    };
-
-    final sampleCourse = Course.fromJson(sampleJson);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Courses'),
       ),
-      body: Column(
-        children: [
-          Card(
-            margin: const EdgeInsets.all(16),
-            child: ListTile(
-              leading: const Icon(Icons.school),
-              title: Text(sampleCourse.title),
-              subtitle: Text(
-                'Kode: ${sampleCourse.code} • '
-                '${sampleCourse.credits} SKS • '
-                'Status: ${sampleCourse.status}',
-              ),
-            ),
-          ),
-          Expanded(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final width = constraints.maxWidth;
-                final columns = width < 840 ? 2 : 3;
-
-                Widget buildCourseCard(Course course) {
-                  final isFavorite =
-                      provider.favorites.contains(course.code);
-
-                  return CourseCard(
-                    course: course,
-                    isFavorite: isFavorite,
-                    onFavorite: () {
-                      showFavoriteMessage(
-                        context,
-                        course,
-                        isFavorite,
-                      );
-
-                      context
-                          .read<CourseState>()
-                          .toggleFavorite(course.code);
-                    },
-                  );
-                }
-
-                if (width < 600) {
-                  return ListView.separated(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: courses.length,
-                    separatorBuilder: (_, _) =>
-                        const SizedBox(height: 12),
-                    itemBuilder: (context, index) {
-                      return buildCourseCard(courses[index]);
-                    },
-                  );
-                }
-
-                return GridView.builder(
-                  padding: const EdgeInsets.all(16),
-                  gridDelegate:
-                      SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: columns,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: 1.25,
+      body: provider.isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : provider.errorMessage != null
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Text(provider.errorMessage!),
                   ),
-                  itemCount: courses.length,
-                  itemBuilder: (context, index) {
-                    return buildCourseCard(courses[index]);
-                  },
-                );
-              },
-            ),
-          ),
-        ],
-      ),
+                )
+              : provider.courses.isEmpty
+                  ? const Center(
+                      child: Text('Belum ada data mata kuliah.'),
+                    )
+                  : LayoutBuilder(
+                      builder: (context, constraints) {
+                        final width = constraints.maxWidth;
+                        final columns = width < 840 ? 2 : 3;
+
+                        Widget buildCourseCard(Course course) {
+                          final isFavorite = provider.favorites
+                              .contains(course.code);
+
+                          return CourseCard(
+                            course: course,
+                            isFavorite: isFavorite,
+                            onFavorite: () {
+                              showFavoriteMessage(
+                                context,
+                                course,
+                                isFavorite,
+                              );
+
+                              context
+                                  .read<CourseState>()
+                                  .toggleFavorite(course.code);
+                            },
+                          );
+                        }
+
+                        if (width < 600) {
+                          return ListView.separated(
+                            padding: const EdgeInsets.all(16),
+                            itemCount: provider.courses.length,
+                            separatorBuilder: (_, _) =>
+                                const SizedBox(height: 12),
+                            itemBuilder: (context, index) {
+                              return buildCourseCard(
+                                provider.courses[index],
+                              );
+                            },
+                          );
+                        }
+
+                        return GridView.builder(
+                          padding: const EdgeInsets.all(16),
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: columns,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                            childAspectRatio: 1.25,
+                          ),
+                          itemCount: provider.courses.length,
+                          itemBuilder: (context, index) {
+                            return buildCourseCard(
+                              provider.courses[index],
+                            );
+                          },
+                        );
+                      },
+                    ),
     );
   }
 }
