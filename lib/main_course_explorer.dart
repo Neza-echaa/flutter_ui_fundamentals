@@ -1,11 +1,18 @@
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'course_state.dart';
 
 const String studentName = 'Neza Aulia Safitri';
 const String studentId = '2415051035';
 
 void main() {
-  runApp(const CourseExplorerApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => CourseState(),
+      child: const CourseExplorerApp(),
+    ),
+  );
 }
 
 // ============================================================
@@ -592,8 +599,7 @@ class CoursesPage extends StatelessWidget {
             return ListView.separated(
               padding: const EdgeInsets.all(16),
               itemCount: courses.length,
-              separatorBuilder: (_, __) =>
-                  const SizedBox(height: 12),
+              separatorBuilder: (_, _) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
                 final course = courses[index];
                 final isFavorite =
