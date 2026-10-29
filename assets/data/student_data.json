@@ -1,38 +1,26 @@
+
 {
-  "student": {
-    "nim": "2415051035",
-    "name": "Neza Aulia Safitri"
-  },
   "courses": [
     {
-      "code": "MOB01",
-      "title": "Git & GitHub",
-      "credits": 2,
-      "status": "done"
-    },
-    {
-      "code": "MOB02",
-      "title": "Dart Fundamentals",
-      "credits": 2,
-      "status": "done"
-    },
-    {
-      "code": "MOB03",
-      "title": "Flutter UI Fundamentals",
+      "code": "PMB101",
+      "title": "Pemrograman Mobile",
       "credits": 3,
-      "status": "active"
+      "status": "Aktif",
+      "description": "Mempelajari Flutter dan Dart."
     },
     {
-      "code": "MOB04",
-      "title": "Navigation",
-      "credits": 2,
-      "status": "planned"
-    },
-    {
-      "code": "MOB05",
-      "title": "State Management",
+      "code": "BD201",
+      "title": "Basis Data",
       "credits": 3,
-      "status": "planned"
+      "status": "Aktif",
+      "description": "Mempelajari basis data dan SQL."
+    },
+    {
+      "code": "WEB201",
+      "title": "Pemrograman Web",
+      "credits": 3,
+      "status": "Aktif",
+      "description": "Mempelajari pengembangan aplikasi web."
     }
   ]
 }

@@ -2,11 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'course_state.dart';
 import 'models/course.dart';
+import 'services/course_service.dart';
 
 const String studentName = 'Neza Aulia Safitri';
 const String studentId = '2415051035';
 
-void main() {
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final service = CourseService();
+  final loadedCourses = await service.loadCourses();
+
+  debugPrint('Jumlah course: ${loadedCourses.length}');
+
+  for (final course in loadedCourses) {
+    debugPrint('${course.code} - ${course.title}');
+  }
+
   runApp(
     ChangeNotifierProvider(
       create: (_) => CourseState(),
@@ -14,6 +27,7 @@ void main() {
     ),
   );
 }
+
 
 
 // ============================================================
