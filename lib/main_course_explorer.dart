@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 
 const String studentName = 'Neza Aulia Safitri';
@@ -113,37 +114,68 @@ class ResponsiveShell extends StatefulWidget {
   const ResponsiveShell({super.key});
 
   @override
-  State<ResponsiveShell> createState() => _ResponsiveShellState();
+  State<ResponsiveShell> createState() =>
+      _ResponsiveShellState();
 }
-//2415051035_Neza Aulia safitri
+
 class _ResponsiveShellState extends State<ResponsiveShell> {
   int selectedIndex = 0;
 
+  // Shared state untuk course favorit.
   final Set<String> favoriteCourses = {};
-//2415051035_Neza Aulia Safitri
+
+  // State sederhana menggunakan ValueNotifier.
+  final ValueNotifier<int> favoriteCounter =
+      ValueNotifier<int>(0);
+
+  void toggleFavorite(Course course) {
+    setState(() {
+      if (favoriteCourses.contains(course.code)) {
+        favoriteCourses.remove(course.code);
+      } else {
+        favoriteCourses.add(course.code);
+      }
+    });
+  }
+
+  void showFeedbackSuccess() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Feedback berhasil dikirim!'),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    favoriteCounter.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final pages = [
+      HomePage(
+        favoriteCourses: favoriteCourses,
+        onToggleFavorite: toggleFavorite,
+        favoriteCounter: favoriteCounter,
+        onOpenCourses: () {
+          setState(() {
+            selectedIndex = 1;
+          });
+        },
+      ),
+      CoursesPage(
+        favoriteCourses: favoriteCourses,
+        onToggleFavorite: toggleFavorite,
+      ),
+      ProfilePage(
+        onSubmitFeedback: showFeedbackSuccess,
+      ),
+    ];
+
     return LayoutBuilder(
       builder: (context, constraints) {
-        final pages = [
-          HomePage(
-            favoriteCourses: favoriteCourses,
-            onToggleFavorite: toggleFavorite,
-            onOpenCourses: () {
-              setState(() {
-                selectedIndex = 1;
-              });
-            },
-          ),
-          CoursesPage(
-            favoriteCourses: favoriteCourses,
-            onToggleFavorite: toggleFavorite,
-          ),
-          ProfilePage(
-            onSubmitFeedback: showFeedbackSuccess,
-          ),
-        ];
-
         if (constraints.maxWidth < 840) {
           return Scaffold(
             body: pages[selectedIndex],
@@ -214,31 +246,10 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
       },
     );
   }
-//2415051035_Neza Aulia Safitri
-  void toggleFavorite(Course course) {
-    setState(() {
-      if (favoriteCourses.contains(course.code)) {
-        favoriteCourses.remove(course.code);
-      } else {
-        favoriteCourses.add(course.code);
-      }
-    });
-  }
-
-  void showFeedbackSuccess() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Feedback berhasil dikirim!',
-        ),
-      ),
-    );
-  }
 }
 
 // ============================================================
-// REUSABLE WIDGET 1
-// COURSE CARD
+// REUSABLE WIDGET 1: COURSE CARD
 // ============================================================
 
 class CourseCard extends StatelessWidget {
@@ -264,6 +275,8 @@ class CourseCard extends StatelessWidget {
             MaterialPageRoute(
               builder: (_) => CourseDetailPage(
                 course: course,
+                isFavorite: isFavorite,
+                onToggleFavorite: onFavorite,
               ),
             ),
           );
@@ -298,7 +311,6 @@ class CourseCard extends StatelessWidget {
                     child: Icon(Icons.school),
                   ),
                   const SizedBox(width: 12),
-
                   Expanded(
                     child: Text(
                       course.title,
@@ -308,38 +320,31 @@ class CourseCard extends StatelessWidget {
                       ),
                     ),
                   ),
-
                   IconButton(
                     onPressed: onFavorite,
+                    tooltip: 'Favorite',
                     icon: Icon(
                       isFavorite
                           ? Icons.favorite
                           : Icons.favorite_border,
                     ),
-                    tooltip: 'Favorite',
                   ),
                 ],
               ),
-
               const SizedBox(height: 12),
-
               Text(
                 '${course.code} • ${course.credits} SKS',
                 style: TextStyle(
                   color: Colors.grey.shade700,
                 ),
               ),
-
               const SizedBox(height: 8),
-
               Text(
                 course.description,
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
               ),
-
               const SizedBox(height: 12),
-
               Chip(
                 label: Text(course.status),
                 avatar: const Icon(
@@ -358,22 +363,27 @@ class CourseCard extends StatelessWidget {
 // ============================================================
 // HOME PAGE
 // ============================================================
-//2415051035_Neza Aulia Safitri
 
 class HomePage extends StatelessWidget {
-    final VoidCallback onOpenCourses;
-    final Set<String> favoriteCourses;
-    final Function(Course) onToggleFavorite;
+  final VoidCallback onOpenCourses;
+  final Set<String> favoriteCourses;
+  final Function(Course) onToggleFavorite;
+  final ValueNotifier<int> favoriteCounter;
 
-    const HomePage({
-      super.key,
-      required this.onOpenCourses,
-      required this.favoriteCourses,
-      required this.onToggleFavorite,
-    });
+  const HomePage({
+    super.key,
+    required this.onOpenCourses,
+    required this.favoriteCourses,
+    required this.onToggleFavorite,
+    required this.favoriteCounter,
+  });
 
-    @override
-    Widget build(BuildContext context) {
+  @override
+  Widget build(BuildContext context) {
+    final firstCourse = courses.first;
+    final firstCourseIsFavorite =
+        favoriteCourses.contains(firstCourse.code);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Course Explorer'),
@@ -390,23 +400,18 @@ class HomePage extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-
             const SizedBox(height: 8),
-
             const Text(
               'Temukan berbagai course yang tersedia.',
-              style: TextStyle(
-                fontSize: 17,
-              ),
+              style: TextStyle(fontSize: 17),
             ),
-
             const SizedBox(height: 24),
 
-            // REUSABLE WIDGET 2
-            //2415051035_Neza Aulia Safitri
             const StudentIdentityCard(),
 
             const SizedBox(height: 24),
+
+            // Ringkasan course favorit.
             Card(
               child: ListTile(
                 leading: const Icon(Icons.favorite),
@@ -417,33 +422,77 @@ class HomePage extends StatelessWidget {
                 trailing: IconButton(
                   tooltip: 'Toggle favorite',
                   icon: Icon(
-                    favoriteCourses.contains(courses.first.code)
+                    firstCourseIsFavorite
                         ? Icons.favorite
                         : Icons.favorite_border,
                   ),
                   onPressed: () {
-                    onToggleFavorite(courses.first);
+                    onToggleFavorite(firstCourse);
                   },
                 ),
               ),
             ),
 
-const SizedBox(height: 24),
+            const SizedBox(height: 24),
+
+            // Latihan ValueNotifier.
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Latihan ValueNotifier',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    ValueListenableBuilder<int>(
+                      valueListenable: favoriteCounter,
+                      builder: (context, value, child) {
+                        return Text(
+                          'Jumlah favorite: $value',
+                          style: const TextStyle(fontSize: 16),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        favoriteCounter.value++;
+                      },
+                      icon: const Icon(Icons.add),
+                      label: const Text('Tambah jumlah'),
+                    ),
+                    const SizedBox(height: 8),
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        favoriteCounter.value = 0;
+                      },
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Reset jumlah'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 24),
 
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Icon(
                       Icons.explore,
                       size: 40,
                     ),
-
                     const SizedBox(height: 12),
-
                     const Text(
                       'Course Explorer',
                       style: TextStyle(
@@ -451,22 +500,16 @@ const SizedBox(height: 24),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-
                     const SizedBox(height: 8),
-
                     const Text(
                       'Aplikasi untuk melihat daftar course, '
                       'detail course, favorite, dan feedback.',
                     ),
-
                     const SizedBox(height: 16),
-
                     ElevatedButton.icon(
                       onPressed: onOpenCourses,
                       icon: const Icon(Icons.school),
-                      label: const Text(
-                        'Lihat Courses',
-                      ),
+                      label: const Text('Lihat Courses'),
                     ),
                   ],
                 ),
@@ -480,8 +523,7 @@ const SizedBox(height: 24),
 }
 
 // ============================================================
-// REUSABLE WIDGET 2
-// STUDENT IDENTITY CARD
+// REUSABLE WIDGET 2: STUDENT IDENTITY CARD
 // ============================================================
 
 class StudentIdentityCard extends StatelessWidget {
@@ -489,20 +531,18 @@ class StudentIdentityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return const Card(
       child: ListTile(
-        leading: const CircleAvatar(
+        leading: CircleAvatar(
           child: Icon(Icons.person),
         ),
-        title: const Text(
+        title: Text(
           studentName,
           style: TextStyle(
             fontWeight: FontWeight.bold,
           ),
         ),
-        subtitle: const Text(
-          'NIM: 2415051035',
-        ),
+        subtitle: Text('NIM: $studentId'),
       ),
     );
   }
@@ -522,6 +562,22 @@ class CoursesPage extends StatelessWidget {
     required this.onToggleFavorite,
   });
 
+  void showFavoriteMessage(
+    BuildContext context,
+    Course course,
+    bool wasFavorite,
+  ) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          wasFavorite
+              ? '${course.title} dihapus dari favorit'
+              : '${course.title} ditambahkan ke favorit',
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -533,7 +589,6 @@ class CoursesPage extends StatelessWidget {
           final width = constraints.maxWidth;
 
           if (width < 600) {
-            // COMPACT
             return ListView.separated(
               padding: const EdgeInsets.all(16),
               itemCount: courses.length,
@@ -541,31 +596,25 @@ class CoursesPage extends StatelessWidget {
                   const SizedBox(height: 12),
               itemBuilder: (context, index) {
                 final course = courses[index];
+                final isFavorite =
+                    favoriteCourses.contains(course.code);
 
                 return CourseCard(
                   course: course,
-                  isFavorite:
-                      favoriteCourses.contains(course.code),
+                  isFavorite: isFavorite,
                   onFavorite: () {
-                    onToggleFavorite(course);
-
-                    ScaffoldMessenger.of(context)
-                        .showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          favoriteCourses.contains(course.code)
-                              ? '${course.title} ditambahkan dari favorite'
-                              : '${course.title} dihapus ke favorite',
-                        ),
-                      ),
+                    showFavoriteMessage(
+                      context,
+                      course,
+                      isFavorite,
                     );
+                    onToggleFavorite(course);
                   },
                 );
               },
             );
           }
 
-          // MEDIUM + EXPANDED
           final columns = width < 840 ? 2 : 3;
 
           return GridView.builder(
@@ -580,24 +629,19 @@ class CoursesPage extends StatelessWidget {
             itemCount: courses.length,
             itemBuilder: (context, index) {
               final course = courses[index];
+              final isFavorite =
+                  favoriteCourses.contains(course.code);
 
               return CourseCard(
                 course: course,
-                isFavorite:
-                    favoriteCourses.contains(course.code),
+                isFavorite: isFavorite,
                 onFavorite: () {
-                  onToggleFavorite(course);
-
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        favoriteCourses.contains(course.code)
-                            ? '${course.title} ditambahkan dari favorite'
-                            : '${course.title} dihapus ke favorite',
-                      ),
-                    ),
+                  showFavoriteMessage(
+                    context,
+                    course,
+                    isFavorite,
                   );
+                  onToggleFavorite(course);
                 },
               );
             },
@@ -611,14 +655,17 @@ class CoursesPage extends StatelessWidget {
 // ============================================================
 // COURSE DETAIL PAGE
 // ============================================================
-// Nama: Neza Aulia Safitri
-// NIM: 2415051035
+
 class CourseDetailPage extends StatefulWidget {
   final Course course;
+  final bool isFavorite;
+  final VoidCallback onToggleFavorite;
 
   const CourseDetailPage({
     super.key,
     required this.course,
+    required this.isFavorite,
+    required this.onToggleFavorite,
   });
 
   @override
@@ -632,6 +679,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
   @override
   Widget build(BuildContext context) {
     final course = widget.course;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Course Detail'),
@@ -645,9 +693,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
               Icons.school,
               size: 70,
             ),
-
             const SizedBox(height: 20),
-
             Text(
               course.title,
               style: const TextStyle(
@@ -655,40 +701,26 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-
             const SizedBox(height: 12),
-
             Text(
               'Kode: ${course.code}',
-              style: const TextStyle(
-                fontSize: 17,
-              ),
+              style: const TextStyle(fontSize: 17),
             ),
-
             const SizedBox(height: 8),
-
             Text(
               'SKS: ${course.credits}',
-              style: const TextStyle(
-                fontSize: 17,
-              ),
+              style: const TextStyle(fontSize: 17),
             ),
-
             const SizedBox(height: 8),
-
             Text(
               'Status: ${course.status}',
-              style: const TextStyle(
-                fontSize: 17,
-              ),
+              style: const TextStyle(fontSize: 17),
             ),
-
             const SizedBox(height: 24),
 
-// Nama: Neza Aulia Safitri
-// NIM: 2415051035
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment:
+                  MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
                   'Deskripsi',
@@ -704,20 +736,18 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                     });
                   },
                   child: Text(
-                    showDescription ? 'Sembunyikan' : 'Tampilkan',
+                    showDescription
+                        ? 'Sembunyikan'
+                        : 'Tampilkan',
                   ),
                 ),
               ],
             ),
-
             const SizedBox(height: 8),
-
             if (showDescription)
               Text(
                 course.description,
-                style: const TextStyle(
-                  fontSize: 16,
-                ),
+                style: const TextStyle(fontSize: 16),
               ),
 
             const SizedBox(height: 32),
@@ -726,19 +756,24 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: () {
-                  Navigator.pop(context, true);
+                  widget.onToggleFavorite();
+                  Navigator.pop(context);
                 },
-                icon: const Icon(Icons.favorite),
-                label: const Text(
-                  'Pilih / Favorite Course',
+                icon: Icon(
+                  widget.isFavorite
+                      ? Icons.favorite
+                      : Icons.favorite_border,
+                ),
+                label: Text(
+                  widget.isFavorite
+                      ? 'Hapus dari Favorit'
+                      : 'Pilih / Favorite Course',
                 ),
               ),
             ),
 
             const SizedBox(height: 24),
-
             const Divider(),
-
             const SizedBox(height: 12),
 
             const Text(
@@ -748,18 +783,10 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-
             const SizedBox(height: 8),
-
-            const Text(
-              'Nama: Neza Aulia Safitri',
-            ),
-
+            const Text('Nama: Neza Aulia Safitri'),
             const SizedBox(height: 4),
-
-            const Text(
-              'NIM: 2415051035',
-            ),
+            const Text('NIM: 2415051035'),
           ],
         ),
       ),
@@ -864,7 +891,6 @@ class _ProfilePageState extends State<ProfilePage> {
     });
 
     widget.onSubmitFeedback();
-
     commentController.clear();
   }
 
@@ -888,11 +914,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-
               const SizedBox(height: 20),
-
               const StudentIdentityCard(),
-
               const SizedBox(height: 28),
 
               const Text(
@@ -902,7 +925,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-
               const SizedBox(height: 12),
 
               TextFormField(
@@ -917,11 +939,9 @@ class _ProfilePageState extends State<ProfilePage> {
                       value.trim().isEmpty) {
                     return 'Nama wajib diisi';
                   }
-
                   return null;
                 },
               ),
-
               const SizedBox(height: 16),
 
               TextFormField(
@@ -936,11 +956,9 @@ class _ProfilePageState extends State<ProfilePage> {
                       value.trim().isEmpty) {
                     return 'NIM wajib diisi';
                   }
-
                   return null;
                 },
               ),
-
               const SizedBox(height: 16),
 
               TextFormField(
@@ -966,7 +984,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   return null;
                 },
               ),
-
               const SizedBox(height: 20),
 
               SizedBox(
@@ -975,9 +992,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   onPressed:
                       isLoading ? null : submitFeedback,
                   icon: const Icon(Icons.send),
-                  label: const Text(
-                    'Kirim Feedback',
-                  ),
+                  label: const Text('Kirim Feedback'),
                 ),
               ),
 
@@ -989,17 +1004,13 @@ class _ProfilePageState extends State<ProfilePage> {
                     children: [
                       CircularProgressIndicator(),
                       SizedBox(height: 12),
-                      Text(
-                        'Mengirim feedback...',
-                      ),
+                      Text('Mengirim feedback...'),
                     ],
                   ),
                 ),
 
               const SizedBox(height: 24),
-
               const Divider(),
-
               const SizedBox(height: 12),
 
               const Text(
@@ -1008,12 +1019,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-
               const SizedBox(height: 4),
-
-              const Text(
-                'NIM: 2415051035',
-              ),
+              const Text('NIM: 2415051035'),
             ],
           ),
         ),
