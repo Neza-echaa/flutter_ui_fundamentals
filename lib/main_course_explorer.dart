@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'course_state.dart';
 import 'models/course.dart';
-
+import 'course_provider.dart';
+import 'repositories/course_repository.dart';
+import 'services/course_service.dart';
 
 const String studentName = 'Neza Aulia Safitri';
 const String studentId = '2415051035';
@@ -10,7 +11,9 @@ const String studentId = '2415051035';
 void main() {
   runApp(
     ChangeNotifierProvider(
-      create: (_) => CourseState()..loadCourses(),
+      create: (_) => CourseProvider(
+        CourseRepository(CourseService()),
+      )..loadCourses(),
       child: const CourseExplorerApp(),
     ),
   );
@@ -297,7 +300,7 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<CourseState>();
+    final provider = context.watch<CourseProvider>();
     
     final sampleJson = <String, dynamic>{
       'code': 'PTI101',
@@ -361,7 +364,7 @@ class HomePage extends StatelessWidget {
                 subtitle: Text(
                   '${provider.favorites.length} course ditandai sebagai favorit',
                 ),
-                trailing: Consumer<CourseState>(
+                trailing: Consumer<CourseProvider>(
                   builder: (context, state, child) {
                     final firstCourse =
                         state.courses.isNotEmpty ? state.courses.first : null;
@@ -377,7 +380,7 @@ class HomePage extends StatelessWidget {
                         ? null
                         : () {
                             context
-                                .read<CourseState>()
+                                .read<CourseProvider>()
                                 .toggleFavorite(firstCourse.code);
                           },
                     );
@@ -530,7 +533,7 @@ class CoursesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<CourseState>();
+    final provider = context.watch<CourseProvider>();
 
     return Scaffold(
       appBar: AppBar(
@@ -540,11 +543,13 @@ class CoursesPage extends StatelessWidget {
           ? const Center(
               child: CircularProgressIndicator(),
             )
-          : provider.errorMessage != null
+          : provider.error != null
               ? Center(
                   child: Padding(
                     padding: const EdgeInsets.all(20),
-                    child: Text(provider.errorMessage!),
+                    child: Text(
+                      'Gagal memuat data: ${provider.error}',
+                    ),
                   ),
                 )
               : provider.courses.isEmpty
@@ -571,7 +576,7 @@ class CoursesPage extends StatelessWidget {
                               );
 
                               context
-                                  .read<CourseState>()
+                                  .read<CourseProvider>()
                                   .toggleFavorite(course.code);
                             },
                           );
