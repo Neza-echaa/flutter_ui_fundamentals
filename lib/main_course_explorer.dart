@@ -129,21 +129,13 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
   int selectedIndex = 0;
 
   // Shared state untuk course favorit.
-  final Set<String> favoriteCourses = {};
+  
 
   // State sederhana menggunakan ValueNotifier.
   final ValueNotifier<int> favoriteCounter =
       ValueNotifier<int>(0);
 
-  void toggleFavorite(Course course) {
-    setState(() {
-      if (favoriteCourses.contains(course.code)) {
-        favoriteCourses.remove(course.code);
-      } else {
-        favoriteCourses.add(course.code);
-      }
-    });
-  }
+  
 
   void showFeedbackSuccess() {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -163,8 +155,6 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
   Widget build(BuildContext context) {
     final pages = [
       HomePage(
-        favoriteCourses: favoriteCourses,
-        onToggleFavorite: toggleFavorite,
         favoriteCounter: favoriteCounter,
         onOpenCourses: () {
           setState(() {
@@ -172,10 +162,7 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
           });
         },
       ),
-      CoursesPage(
-        favoriteCourses: favoriteCourses,
-        onToggleFavorite: toggleFavorite,
-      ),
+      const CoursesPage(),
       ProfilePage(
         onSubmitFeedback: showFeedbackSuccess,
       ),
@@ -373,23 +360,17 @@ class CourseCard extends StatelessWidget {
 
 class HomePage extends StatelessWidget {
   final VoidCallback onOpenCourses;
-  final Set<String> favoriteCourses;
-  final Function(Course) onToggleFavorite;
   final ValueNotifier<int> favoriteCounter;
 
   const HomePage({
     super.key,
     required this.onOpenCourses,
-    required this.favoriteCourses,
-    required this.onToggleFavorite,
     required this.favoriteCounter,
   });
 
   @override
   Widget build(BuildContext context) {
-    final firstCourse = courses.first;
-    final firstCourseIsFavorite =
-        favoriteCourses.contains(firstCourse.code);
+    final provider = context.watch<CourseState>();
 
     return Scaffold(
       appBar: AppBar(
@@ -419,26 +400,32 @@ class HomePage extends StatelessWidget {
             const SizedBox(height: 24),
 
             // Ringkasan course favorit.
+            
             Card(
               child: ListTile(
                 leading: const Icon(Icons.favorite),
                 title: const Text('Course Favorit'),
                 subtitle: Text(
-                  '${favoriteCourses.length} course ditandai sebagai favorit',
+                  '${provider.favorites.length} course ditandai sebagai favorit',
                 ),
-                trailing: IconButton(
-                  tooltip: 'Toggle favorite',
-                  icon: Icon(
-                    firstCourseIsFavorite
-                        ? Icons.favorite
-                        : Icons.favorite_border,
-                  ),
-                  onPressed: () {
-                    onToggleFavorite(firstCourse);
+                trailing: Consumer<CourseState>(
+                  builder: (context, state, child) {
+                    final isFavorite =
+                        state.favorites.contains(courses.first.code);
+                    return IconButton(
+                      tooltip: 'Toggle favorite',
+                      icon: Icon(
+                        isFavorite ? Icons.favorite : Icons.favorite_border,
+                      ),
+                      onPressed: () {
+                        context.read<CourseState>().toggleFavorite(courses.first.code);
+                      },
+                    );
                   },
                 ),
               ),
             ),
+
 
             const SizedBox(height: 24),
 
@@ -559,15 +546,9 @@ class StudentIdentityCard extends StatelessWidget {
 // COURSES PAGE
 // ============================================================
 
-class CoursesPage extends StatelessWidget {
-  final Set<String> favoriteCourses;
-  final Function(Course) onToggleFavorite;
 
-  const CoursesPage({
-    super.key,
-    required this.favoriteCourses,
-    required this.onToggleFavorite,
-  });
+class CoursesPage extends StatelessWidget {
+  const CoursesPage({super.key});
 
   void showFavoriteMessage(
     BuildContext context,
@@ -587,6 +568,8 @@ class CoursesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<CourseState>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Courses'),
@@ -594,6 +577,30 @@ class CoursesPage extends StatelessWidget {
       body: LayoutBuilder(
         builder: (context, constraints) {
           final width = constraints.maxWidth;
+          final columns = width < 840 ? 2 : 3;
+
+          Widget buildCourseCard(
+            Course course,
+          ) {
+            final isFavorite =
+                provider.favorites.contains(course.code);
+
+            return CourseCard(
+              course: course,
+              isFavorite: isFavorite,
+              onFavorite: () {
+                showFavoriteMessage(
+                  context,
+                  course,
+                  isFavorite,
+                );
+
+                context
+                    .read<CourseState>()
+                    .toggleFavorite(course.code);
+              },
+            );
+          }
 
           if (width < 600) {
             return ListView.separated(
@@ -601,27 +608,10 @@ class CoursesPage extends StatelessWidget {
               itemCount: courses.length,
               separatorBuilder: (_, _) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
-                final course = courses[index];
-                final isFavorite =
-                    favoriteCourses.contains(course.code);
-
-                return CourseCard(
-                  course: course,
-                  isFavorite: isFavorite,
-                  onFavorite: () {
-                    showFavoriteMessage(
-                      context,
-                      course,
-                      isFavorite,
-                    );
-                    onToggleFavorite(course);
-                  },
-                );
+                return buildCourseCard(courses[index]);
               },
             );
           }
-
-          final columns = width < 840 ? 2 : 3;
 
           return GridView.builder(
             padding: const EdgeInsets.all(16),
@@ -634,22 +624,7 @@ class CoursesPage extends StatelessWidget {
             ),
             itemCount: courses.length,
             itemBuilder: (context, index) {
-              final course = courses[index];
-              final isFavorite =
-                  favoriteCourses.contains(course.code);
-
-              return CourseCard(
-                course: course,
-                isFavorite: isFavorite,
-                onFavorite: () {
-                  showFavoriteMessage(
-                    context,
-                    course,
-                    isFavorite,
-                  );
-                  onToggleFavorite(course);
-                },
-              );
+              return buildCourseCard(courses[index]);
             },
           );
         },
@@ -657,6 +632,7 @@ class CoursesPage extends StatelessWidget {
     );
   }
 }
+
 
 // ============================================================
 // COURSE DETAIL PAGE
