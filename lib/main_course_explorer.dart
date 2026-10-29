@@ -1,7 +1,7 @@
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'course_state.dart';
+import 'models/course.dart';
 
 const String studentName = 'Neza Aulia Safitri';
 const String studentId = '2415051035';
@@ -15,25 +15,6 @@ void main() {
   );
 }
 
-// ============================================================
-// MODEL COURSE
-// ============================================================
-
-class Course {
-  final String title;
-  final String code;
-  final int credits;
-  final String status;
-  final String description;
-
-  const Course({
-    required this.title,
-    required this.code,
-    required this.credits,
-    required this.status,
-    required this.description,
-  });
-}
 
 // ============================================================
 // DATA COURSE
@@ -371,6 +352,16 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<CourseState>();
+    
+    final sampleJson = <String, dynamic>{
+      'code': 'PTI101',
+      'title': 'Pemrograman Dasar',
+      'credits': 3,
+      'status': 'Aktif',
+    };
+
+    final sampleCourse = Course.fromJson(sampleJson);
+
 
     return Scaffold(
       appBar: AppBar(
@@ -395,9 +386,25 @@ class HomePage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
+            
             const StudentIdentityCard(),
 
             const SizedBox(height: 24),
+
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.data_object),
+                title: Text(sampleCourse.title),
+                subtitle: Text(
+                  'Kode: ${sampleCourse.code} • '
+                  '${sampleCourse.credits} SKS • '
+                  'Status: ${sampleCourse.status}',
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
 
             // Ringkasan course favorit.
             
@@ -547,6 +554,7 @@ class StudentIdentityCard extends StatelessWidget {
 // ============================================================
 
 
+
 class CoursesPage extends StatelessWidget {
   const CoursesPage({super.key});
 
@@ -570,69 +578,94 @@ class CoursesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = context.watch<CourseState>();
 
+    final sampleJson = <String, dynamic>{
+      'code': 'PTI101',
+      'title': 'Pemrograman Dasar',
+      'credits': 3,
+      'status': 'Aktif',
+    };
+
+    final sampleCourse = Course.fromJson(sampleJson);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Courses'),
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final width = constraints.maxWidth;
-          final columns = width < 840 ? 2 : 3;
-
-          Widget buildCourseCard(
-            Course course,
-          ) {
-            final isFavorite =
-                provider.favorites.contains(course.code);
-
-            return CourseCard(
-              course: course,
-              isFavorite: isFavorite,
-              onFavorite: () {
-                showFavoriteMessage(
-                  context,
-                  course,
-                  isFavorite,
-                );
-
-                context
-                    .read<CourseState>()
-                    .toggleFavorite(course.code);
-              },
-            );
-          }
-
-          if (width < 600) {
-            return ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemCount: courses.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                return buildCourseCard(courses[index]);
-              },
-            );
-          }
-
-          return GridView.builder(
-            padding: const EdgeInsets.all(16),
-            gridDelegate:
-                SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: columns,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              childAspectRatio: 1.25,
+      body: Column(
+        children: [
+          Card(
+            margin: const EdgeInsets.all(16),
+            child: ListTile(
+              leading: const Icon(Icons.school),
+              title: Text(sampleCourse.title),
+              subtitle: Text(
+                'Kode: ${sampleCourse.code} • '
+                '${sampleCourse.credits} SKS • '
+                'Status: ${sampleCourse.status}',
+              ),
             ),
-            itemCount: courses.length,
-            itemBuilder: (context, index) {
-              return buildCourseCard(courses[index]);
-            },
-          );
-        },
+          ),
+          Expanded(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final width = constraints.maxWidth;
+                final columns = width < 840 ? 2 : 3;
+
+                Widget buildCourseCard(Course course) {
+                  final isFavorite =
+                      provider.favorites.contains(course.code);
+
+                  return CourseCard(
+                    course: course,
+                    isFavorite: isFavorite,
+                    onFavorite: () {
+                      showFavoriteMessage(
+                        context,
+                        course,
+                        isFavorite,
+                      );
+
+                      context
+                          .read<CourseState>()
+                          .toggleFavorite(course.code);
+                    },
+                  );
+                }
+
+                if (width < 600) {
+                  return ListView.separated(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: courses.length,
+                    separatorBuilder: (_, _) =>
+                        const SizedBox(height: 12),
+                    itemBuilder: (context, index) {
+                      return buildCourseCard(courses[index]);
+                    },
+                  );
+                }
+
+                return GridView.builder(
+                  padding: const EdgeInsets.all(16),
+                  gridDelegate:
+                      SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: columns,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    childAspectRatio: 1.25,
+                  ),
+                  itemCount: courses.length,
+                  itemBuilder: (context, index) {
+                    return buildCourseCard(courses[index]);
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
 }
-
 
 // ============================================================
 // COURSE DETAIL PAGE
