@@ -29,3 +29,24 @@ Alur pengelolaan data pada aplikasi Course Explorer adalah:
 **Screen/Widget → Provider → Repository → Service → Data Source**
 
 Setiap bagian memiliki tanggung jawab masing-masing. Screen dan Widget berfokus pada tampilan, Provider mengelola state, Repository mengatur akses data, sedangkan Service bertugas membaca data dari sumbernya.
+## REST API Endpoint
+
+Endpoint yang digunakan pada tahap awal integrasi REST API:
+
+- **URL:** https://course-api-pearl.vercel.app/courses
+- **Method:** GET
+- **Status Code:** 200 OK
+- **Resource:** courses
+
+### Field JSON yang ditemukan
+
+| Field | Keterangan |
+|---|---|
+| `id` | ID atau nomor unik setiap course |
+| `code` | Kode mata kuliah |
+| `title` | Nama atau judul mata kuliah |
+| `credits` | Jumlah SKS mata kuliah |
+| `status` | Status course, seperti `active`, `planned`, atau `done` |
+| `created_at` | Tanggal dan waktu data course dibuat |
+
+Endpoint `/courses` berhasil diakses menggunakan metode GET dan menghasilkan status code 200. Response dikembalikan dalam format JSON berupa daftar data course.
