@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
 import 'repositories/course_repository.dart';
@@ -12,9 +14,22 @@ import 'screens/favorites_page.dart';
 
 const String studentName = 'Neza Aulia Safitri';
 const String studentId = '2415051035';
+const String apiUrl = 'https://course-api-pearl.vercel.app/courses';
+Future<List<dynamic>> fetchCourses() async {
+  final response = await http.get(Uri.parse(apiUrl));
 
+  if (response.statusCode == 200) {
+    return jsonDecode(response.body) as List<dynamic>;
+  }
+
+  throw Exception('HTTP ${response.statusCode}');
+}
 void main() {
-  
+  fetchCourses().then((courses) {
+  debugPrint('Jumlah course dari API: ${courses.length}');
+}).catchError((error) {
+  debugPrint('Error GET API: $error');
+});
   runApp(
     ChangeNotifierProvider(
       create: (_) => CourseProvider(
