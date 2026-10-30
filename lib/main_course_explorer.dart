@@ -9,12 +9,21 @@ import 'screens/home_page.dart';
 import 'screens/courses_page.dart';
 import 'screens/profile_page.dart';
 import 'screens/favorites_page.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'config/supabase_config.dart';
 
 const String studentName = 'Neza Aulia Safitri';
 const String studentId = '2415051035';
 const String apiUrl = 'https://course-api-pearl.vercel.app/courses';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Supabase.initialize(
+  url: SupabaseConfig.supabaseUrl,
+  publishableKey: SupabaseConfig.supabasePublishableKey,
+);
+
   runApp(
     ChangeNotifierProvider(
       create: (_) => CourseProvider(
@@ -24,7 +33,6 @@ void main() {
     ),
   );
 }
-
 
 // ============================================================
 // APP
