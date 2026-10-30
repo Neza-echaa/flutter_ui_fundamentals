@@ -4,11 +4,12 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../models/course.dart';
+import 'course_data_source.dart';
 
-class CourseApiService {
+class CourseApiService implements CourseDataSource {
   static const String baseUrl =
       'https://course-api-pearl.vercel.app/courses';
-
+@override
   Future<List<Course>> getCourses() async {
     final response = await http.get(Uri.parse(baseUrl));
 
@@ -29,7 +30,7 @@ class CourseApiService {
     );
   }
 
-  // Membuat course baru menggunakan HTTP POST.
+  @override// Membuat course baru menggunakan HTTP POST.
   Future<Course> createCourse(Course course) async {
     final response = await http.post(
       Uri.parse(baseUrl),
@@ -52,7 +53,7 @@ class CourseApiService {
       'Gagal membuat course: HTTP ${response.statusCode}',
     );
   }
-    // Memperbarui course menggunakan HTTP PUT.
+   @override // Memperbarui course menggunakan HTTP PUT.
   Future<void> updateCourse(int id, Course course) async {
     final response = await http.put(
       Uri.parse('$baseUrl/$id'),
@@ -75,7 +76,7 @@ class CourseApiService {
       );
     }
   }
-    // Menghapus course menggunakan HTTP DELETE.
+  @override  // Menghapus course menggunakan HTTP DELETE.
   Future<void> deleteCourse(int id) async {
     final response = await http.delete(
       Uri.parse('$baseUrl/$id'),
