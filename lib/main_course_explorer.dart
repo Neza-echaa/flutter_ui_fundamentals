@@ -11,6 +11,7 @@ import 'screens/favorites_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'config/supabase_config.dart';
 import 'services/course_supabase_service.dart';
+import 'services/course_data_source.dart';
 
 const String studentName = 'Neza Aulia Safitri';
 const String studentId = '2415051035';
@@ -24,11 +25,12 @@ Future<void> main() async {
   publishableKey: SupabaseConfig.supabasePublishableKey,
 );
 
-  runApp(
+  final CourseDataSource dataSource = CourseSupabaseService();
+final repository = CourseRepository(dataSource);
+
+runApp(
   ChangeNotifierProvider(
-    create: (_) => CourseProvider(
-      CourseRepository(CourseSupabaseService()),
-    )..loadCourses(),
+    create: (_) => CourseProvider(repository)..loadCourses(),
     child: const CourseExplorerApp(),
   ),
 );

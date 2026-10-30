@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../providers/course_provider.dart';
 import '../widgets/course_card.dart';
-
+import '../widgets/error_view.dart';
 // Nama: Neza Aulia Safitri
 // NIM: 2415051035
 
@@ -22,29 +22,38 @@ class FavoritesPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Favorites'),
       ),
-      body: favoriteCourses.isEmpty
-          ? const Center(
-              child: Text('Belum ada mata kuliah favorit.'),
-            )
-          : ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemCount: favoriteCourses.length,
-              separatorBuilder: (_, _) =>
-                  const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                final course = favoriteCourses[index];
+      body: provider.isLoading
+    ? const Center(
+        child: CircularProgressIndicator(),
+      )
+    : provider.error != null
+        ? ErrorView(
+            message: provider.error!,
+            onRetry: provider.loadCourses,
+          )
+        : favoriteCourses.isEmpty
+            ? const Center(
+                child: Text('Belum ada mata kuliah favorit.'),
+              )
+            : ListView.separated(
+                padding: const EdgeInsets.all(16),
+                itemCount: favoriteCourses.length,
+                separatorBuilder: (_, _) =>
+                    const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final course = favoriteCourses[index];
 
-                return CourseCard(
-                  course: course,
-                  isFavorite: provider.isFavorite(course.code),
-                  onFavorite: () {
-                    context
-                        .read<CourseProvider>()
-                        .toggleFavorite(course.code);
-                  },
-                );
-              },
-            ),
+                  return CourseCard(
+                    course: course,
+                    isFavorite: provider.isFavorite(course.code),
+                    onFavorite: () {
+                      context
+                          .read<CourseProvider>()
+                          .toggleFavorite(course.code);
+                    },
+                  );
+                },
+              ),
     );
   }
 }

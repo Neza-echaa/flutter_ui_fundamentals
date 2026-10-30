@@ -37,6 +37,15 @@ class CoursesPage extends StatelessWidget {
       appBar: AppBar(
   title: const Text('Courses'),
   actions: [
+    const Center(
+      child: Padding(
+        padding: EdgeInsets.only(right: 12),
+        child: Text(
+          'Neza Aulia Safitri | 2415051035',
+          style: TextStyle(fontSize: 12),
+        ),
+      ),
+    ),
     IconButton(
       tooltip: 'Tambah Course',
       icon: const Icon(Icons.add),
