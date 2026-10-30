@@ -26,7 +26,79 @@ class CourseDetailPage extends StatefulWidget {
 
 class _CourseDetailPageState extends State<CourseDetailPage> {
   bool showDescription = true;
+  Future<void> confirmDelete(Course course) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Hapus Course?'),
+          content: Text(
+            'Apakah kamu yakin ingin menghapus '
+            '${course.title}?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, false);
+              },
+              child: const Text('Batal'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, true);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Hapus'),
+            ),
+          ],
+        );
+      },
+    );
 
+    if (!mounted || confirmed != true) return;
+
+    final id = course.id;
+
+    if (id == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('ID course tidak ditemukan.'),
+        ),
+      );
+      return;
+    }
+
+    final provider = context.read<CourseProvider>();
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+
+    try {
+      await provider.deleteCourse(id, course.code);
+
+      if (!mounted) return;
+
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('Course berhasil dihapus!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      navigator.pop();
+    } catch (e) {
+      if (!mounted) return;
+
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text('Gagal menghapus course: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<CourseProvider>();
@@ -146,6 +218,22 @@ SizedBox(
     },
     icon: const Icon(Icons.edit),
     label: const Text('Edit Course'),
+  ),
+),
+const SizedBox(height: 12),
+
+SizedBox(
+  width: double.infinity,
+  child: ElevatedButton.icon(
+    onPressed: provider.isSaving
+        ? null
+        : () => confirmDelete(course),
+    icon: const Icon(Icons.delete),
+    label: const Text('Hapus Course'),
+    style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.red,
+      foregroundColor: Colors.white,
+    ),
   ),
 ),
             const SizedBox(height: 12),

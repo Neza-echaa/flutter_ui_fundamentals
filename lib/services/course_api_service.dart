@@ -75,4 +75,17 @@ class CourseApiService {
       );
     }
   }
+    // Menghapus course menggunakan HTTP DELETE.
+  Future<void> deleteCourse(int id) async {
+    final response = await http.delete(
+      Uri.parse('$baseUrl/$id'),
+    );
+
+    if (response.statusCode < 200 ||
+        response.statusCode >= 300) {
+      throw Exception(
+        'Gagal menghapus course: HTTP ${response.statusCode}',
+      );
+    }
+  }
 }

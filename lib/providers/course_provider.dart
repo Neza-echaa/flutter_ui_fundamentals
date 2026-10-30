@@ -87,6 +87,34 @@ class CourseProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+    // Menghapus course yang dipilih.
+  Future<void> deleteCourse(int id, String code) async {
+    if (isSaving) {
+      throw Exception('Proses penyimpanan sedang berlangsung.');
+    }
+
+    isSaving = true;
+    notifyListeners();
+
+    try {
+      await repository.deleteCourse(id);
+
+      // Hapus course dari daftar Favorites.
+      favorites.remove(code);
+
+      // Muat ulang daftar course.
+      await loadCourses();
+
+      if (error != null) {
+        throw Exception(
+          'Course berhasil dihapus, tetapi daftar gagal dimuat: $error',
+        );
+      }
+    } finally {
+      isSaving = false;
+      notifyListeners();
+    }
+  }
 
   bool isFavorite(String code) {
     return favorites.contains(code);

@@ -17,4 +17,7 @@ class CourseRepository {
     Future<void> updateCourse(int id, Course course) {
     return service.updateCourse(id, course);
   }
+    Future<void> deleteCourse(int id) {
+    return service.deleteCourse(id);
+  }
 }
