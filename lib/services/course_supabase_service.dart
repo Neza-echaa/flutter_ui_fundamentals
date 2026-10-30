@@ -40,10 +40,18 @@ Future<Course> createCourse(Course course) async {
 
   return Course.fromJson(row);
 }
-  @override
-  Future<void> updateCourse(int id, Course course) {
-    throw UnimplementedError();
-  }
+ @override
+Future<void> updateCourse(int id, Course course) async {
+  await supabase
+      .from('courses')
+      .update({
+        'code': course.code,
+        'title': course.title,
+        'credits': course.credits,
+        'status': course.status,
+      })
+      .eq('id', id);
+}
 
   @override
   Future<void> deleteCourse(int id) {

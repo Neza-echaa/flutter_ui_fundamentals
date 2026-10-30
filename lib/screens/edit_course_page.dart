@@ -80,7 +80,10 @@ class _EditCoursePageState extends State<EditCoursePage> {
     final navigator = Navigator.of(context);
 
     try {
-      await provider.updateCourse(id, updatedCourse);
+      await provider.updateCourse(
+  widget.course.id!,
+  updatedCourse,
+);
 
       if (!mounted) return;
 
