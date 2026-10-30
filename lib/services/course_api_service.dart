@@ -52,4 +52,27 @@ class CourseApiService {
       'Gagal membuat course: HTTP ${response.statusCode}',
     );
   }
+    // Memperbarui course menggunakan HTTP PUT.
+  Future<void> updateCourse(int id, Course course) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl/$id'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'code': course.code,
+        'title': course.title,
+        'credits': course.credits,
+        'status': course.status,
+        'description': course.description,
+      }),
+    );
+
+    if (response.statusCode < 200 ||
+        response.statusCode >= 300) {
+      throw Exception(
+        'Gagal memperbarui course: HTTP ${response.statusCode}',
+      );
+    }
+  }
 }

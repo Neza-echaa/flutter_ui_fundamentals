@@ -63,6 +63,30 @@ class CourseProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+    // Memperbarui course yang sudah ada.
+  Future<void> updateCourse(int id, Course course) async {
+    if (isSaving) {
+      throw Exception('Penyimpanan sedang berlangsung.');
+    }
+
+    isSaving = true;
+    notifyListeners();
+
+    try {
+      await repository.updateCourse(id, course);
+
+      await loadCourses();
+
+      if (error != null) {
+        throw Exception(
+          'Course berhasil diperbarui, tetapi daftar gagal dimuat: $error',
+        );
+      }
+    } finally {
+      isSaving = false;
+      notifyListeners();
+    }
+  }
 
   bool isFavorite(String code) {
     return favorites.contains(code);
