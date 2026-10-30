@@ -37,20 +37,19 @@ class CourseProvider extends ChangeNotifier {
     }
   }
 
-  // Menambahkan atau menghapus course dari favorit.
-  // Memeriksa apakah course sudah menjadi favorit.
-bool isFavorite(String code) {
-  return favorites.contains(code);
-}
-
-// Menambahkan atau menghapus course dari favorit.
-void toggleFavorite(String code) {
-  if (favorites.contains(code)) {
-    favorites.remove(code);
-  } else {
-    favorites.add(code);
+    // Memeriksa apakah course sudah menjadi favorit.
+  bool isFavorite(String code) {
+    return favorites.contains(code);
   }
 
-  notifyListeners();
-}
+  // Menambahkan atau menghapus course dari favorit.
+  void toggleFavorite(String code) {
+    if (favorites.contains(code)) {
+      favorites.remove(code);
+    } else {
+      favorites.add(code);
+    }
+
+    notifyListeners();
+  }
 }
