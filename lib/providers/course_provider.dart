@@ -1,8 +1,8 @@
 
 import 'package:flutter/material.dart';
-import 'models/course.dart';
-import 'repositories/course_repository.dart';
 
+import '../models/course.dart';
+import '../repositories/course_repository.dart';
 // Nama: Neza Aulia Safitri
 // NIM: 2415051035
 
