@@ -28,9 +28,11 @@ class CourseProvider extends ChangeNotifier {
 
     try {
       courses = await repository.getCourses();
-    } catch (e) {
-      error = e.toString();
-    } finally {
+    } catch (e, stackTrace) {
+  debugPrint('ERROR LOAD COURSES: $e');
+  debugPrint('STACK TRACE: $stackTrace');
+  error = e.toString();
+} finally {
       isLoading = false;
       notifyListeners();
     }

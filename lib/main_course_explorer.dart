@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'repositories/course_repository.dart';
-import 'services/course_api_service.dart';
 import 'providers/course_provider.dart';
 import 'models/course.dart';
 import 'screens/home_page.dart';
@@ -11,6 +10,7 @@ import 'screens/profile_page.dart';
 import 'screens/favorites_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'config/supabase_config.dart';
+import 'services/course_supabase_service.dart';
 
 const String studentName = 'Neza Aulia Safitri';
 const String studentId = '2415051035';
@@ -25,13 +25,13 @@ Future<void> main() async {
 );
 
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => CourseProvider(
-        CourseRepository(CourseApiService()),
-      )..loadCourses(),
-      child: const CourseExplorerApp(),
-    ),
-  );
+  ChangeNotifierProvider(
+    create: (_) => CourseProvider(
+      CourseRepository(CourseSupabaseService()),
+    )..loadCourses(),
+    child: const CourseExplorerApp(),
+  ),
+);
 }
 
 // ============================================================
