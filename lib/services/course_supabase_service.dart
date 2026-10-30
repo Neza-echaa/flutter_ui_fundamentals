@@ -25,11 +25,21 @@ class CourseSupabaseService implements CourseDataSource {
         .toList();
   }
 
-  @override
-  Future<Course> createCourse(Course course) {
-    throw UnimplementedError();
-  }
+@override
+Future<Course> createCourse(Course course) async {
+  final row = await supabase
+      .from('courses')
+      .insert({
+        'code': course.code,
+        'title': course.title,
+        'credits': course.credits,
+        'status': course.status,
+      })
+      .select()
+      .single();
 
+  return Course.fromJson(row);
+}
   @override
   Future<void> updateCourse(int id, Course course) {
     throw UnimplementedError();
