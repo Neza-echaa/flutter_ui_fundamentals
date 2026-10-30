@@ -1,7 +1,5 @@
-
 // Nama: Neza Aulia Safitri
 // NIM: 2415051035
-
 import 'package:flutter/material.dart';
 
 class ErrorView extends StatelessWidget {

@@ -6,7 +6,7 @@ import '../models/course.dart';
 import '../providers/course_provider.dart';
 import '../widgets/course_card.dart';
 import '../widgets/error_view.dart';
-
+import 'add_course_page.dart';
 // Nama: Neza Aulia Safitri
 // NIM: 2415051035
 
@@ -28,15 +28,29 @@ class CoursesPage extends StatelessWidget {
       ),
     );
   }
-
+//2415051035_Neza Aulia Safitri
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<CourseProvider>();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Courses'),
-      ),
+  title: const Text('Courses'),
+  actions: [
+    IconButton(
+      tooltip: 'Tambah Course',
+      icon: const Icon(Icons.add),
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const AddCoursePage(),
+          ),
+        );
+      },
+    ),
+  ],
+),
       body: provider.isLoading
           ? const Center(
               child: CircularProgressIndicator(),

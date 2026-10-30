@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 
 import 'repositories/course_repository.dart';
@@ -15,21 +13,7 @@ import 'screens/favorites_page.dart';
 const String studentName = 'Neza Aulia Safitri';
 const String studentId = '2415051035';
 const String apiUrl = 'https://course-api-pearl.vercel.app/courses';
-Future<List<Course>> fetchCourses() async {
-  final response = await http.get(Uri.parse(apiUrl));
 
-  if (response.statusCode == 200) {
-    final List<dynamic> data = jsonDecode(response.body);
-
-    return data
-        .map(
-          (json) => Course.fromJson(json as Map<String, dynamic>),
-        )
-        .toList();
-  }
-
-  throw Exception('HTTP ${response.statusCode}');
-}
 void main() {
   runApp(
     ChangeNotifierProvider(

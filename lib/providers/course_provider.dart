@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../models/course.dart';
 import '../repositories/course_repository.dart';
+
 // Nama: Neza Aulia Safitri
 // NIM: 2415051035
 
@@ -11,17 +12,15 @@ class CourseProvider extends ChangeNotifier {
 
   CourseProvider(this.repository);
 
-  // Data mata kuliah.
   List<Course> courses = [];
 
-  // State untuk loading dan error.
   bool isLoading = false;
+  bool isSaving = false;
   String? error;
 
-  // Menyimpan kode course yang ditandai sebagai favorit.
   final Set<String> favorites = {};
 
-  // Memuat data mata kuliah dari Repository.
+  // Memuat data mata kuliah.
   Future<void> loadCourses() async {
     isLoading = true;
     error = null;
@@ -37,12 +36,38 @@ class CourseProvider extends ChangeNotifier {
     }
   }
 
-    // Memeriksa apakah course sudah menjadi favorit.
+  // Menyimpan course baru.
+  Future<Course> createCourse(Course course) async {
+    if (isSaving) {
+      throw Exception('Penyimpanan sedang berlangsung.');
+    }
+
+    isSaving = true;
+    notifyListeners();
+
+    try {
+      final createdCourse =
+          await repository.createCourse(course);
+
+      await loadCourses();
+
+      if (error != null) {
+        throw Exception(
+          'Course berhasil dibuat, tetapi daftar gagal diperbarui: $error',
+        );
+      }
+
+      return createdCourse;
+    } finally {
+      isSaving = false;
+      notifyListeners();
+    }
+  }
+
   bool isFavorite(String code) {
     return favorites.contains(code);
   }
 
-  // Menambahkan atau menghapus course dari favorit.
   void toggleFavorite(String code) {
     if (favorites.contains(code)) {
       favorites.remove(code);
