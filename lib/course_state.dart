@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'models/course.dart';
 import 'repositories/course_repository.dart';
-import 'services/course_service.dart';
+import 'services/course_api_service.dart';
 
 // Nama: Neza Aulia Safitri
 // NIM: 2415051035
@@ -9,7 +9,7 @@ import 'services/course_service.dart';
 class CourseState extends ChangeNotifier {
   CourseState({CourseRepository? repository})
       : _repository =
-            repository ?? CourseRepository(CourseService());
+            repository ?? CourseRepository(CourseApiService());
 
   final CourseRepository _repository;
 
