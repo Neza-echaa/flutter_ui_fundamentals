@@ -1,0 +1,8 @@
+[33mcommit db70f1c2dd033a90c305003631e7155d2d25c540[m
+Author: Neza Aulia Safitri <nezaauliasafitri@gmail.com>
+Date:   Fri Oct 30 20:31:43 2026 +0800
+
+    Implementasikan HTTP GET dan parsing response
+
+ lib/main_course_explorer.dart | 17 [32m++++++++++++++++[m[31m-[m
+ 1 file changed, 16 insertions(+), 1 deletion(-)

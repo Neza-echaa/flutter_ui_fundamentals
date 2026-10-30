@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../models/course.dart';
 import '../providers/course_provider.dart';
 import '../widgets/course_card.dart';
+import '../widgets/error_view.dart';
 
 // Nama: Neza Aulia Safitri
 // NIM: 2415051035
@@ -41,14 +42,10 @@ class CoursesPage extends StatelessWidget {
               child: CircularProgressIndicator(),
             )
           : provider.error != null
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Text(
-                      'Gagal memuat data: ${provider.error}',
-                    ),
-                  ),
-                )
+    ? ErrorView(
+        message: provider.error!,
+        onRetry: provider.loadCourses,
+      )
               : provider.courses.isEmpty
                   ? const Center(
                       child: Text('Belum ada data mata kuliah.'),

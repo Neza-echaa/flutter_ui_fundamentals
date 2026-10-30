@@ -1,4 +1,7 @@
-//2415051035_Neza Aulia Safitri
+
+ // Nama: Neza Aulia Safitri
+// NIM: 2415051035
+
 class Course {
   final int? id;
   final String code;
