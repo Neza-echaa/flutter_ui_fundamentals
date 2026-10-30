@@ -59,8 +59,7 @@ class CoursesPage extends StatelessWidget {
                         final columns = width < 840 ? 2 : 3;
 
                         Widget buildCourseCard(Course course) {
-                          final isFavorite = provider.favorites
-                              .contains(course.code);
+                          final isFavorite = provider.isFavorite(course.code);
 
                           return CourseCard(
                             course: course,

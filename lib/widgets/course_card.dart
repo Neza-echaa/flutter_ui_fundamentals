@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/course.dart';
 import '../screens/course_detail_page.dart';
+import 'package:provider/provider.dart';
+import '../providers/course_provider.dart';
 
 class CourseCard extends StatelessWidget {
   final Course course;
@@ -16,6 +18,8 @@ class CourseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<CourseProvider>(context);
+    final favoriteStatus = provider.isFavorite(course.code);
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -74,9 +78,10 @@ class CourseCard extends StatelessWidget {
                     onPressed: onFavorite,
                     tooltip: 'Favorite',
                     icon: Icon(
-                      isFavorite
+                      favoriteStatus
                           ? Icons.favorite
                           : Icons.favorite_border,
+                      color: favoriteStatus ? Colors.red : null,
                     ),
                   ),
                 ],

@@ -38,13 +38,19 @@ class CourseProvider extends ChangeNotifier {
   }
 
   // Menambahkan atau menghapus course dari favorit.
-  void toggleFavorite(String id) {
-    if (favorites.contains(id)) {
-      favorites.remove(id);
-    } else {
-      favorites.add(id);
-    }
+  // Memeriksa apakah course sudah menjadi favorit.
+bool isFavorite(String code) {
+  return favorites.contains(code);
+}
 
-    notifyListeners();
+// Menambahkan atau menghapus course dari favorit.
+void toggleFavorite(String code) {
+  if (favorites.contains(code)) {
+    favorites.remove(code);
+  } else {
+    favorites.add(code);
   }
+
+  notifyListeners();
+}
 }

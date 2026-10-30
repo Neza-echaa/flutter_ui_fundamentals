@@ -8,6 +8,7 @@ import 'models/course.dart';
 import 'screens/home_page.dart';
 import 'screens/courses_page.dart';
 import 'screens/profile_page.dart';
+import 'screens/favorites_page.dart';
 
 const String studentName = 'Neza Aulia Safitri';
 const String studentId = '2415051035';
@@ -97,6 +98,7 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
         },
       ),
       const CoursesPage(),
+      const FavoritesPage(),
       ProfilePage(
         onSubmitFeedback: showFeedbackSuccess,
       ),
@@ -124,6 +126,11 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
                   icon: Icon(Icons.school_outlined),
                   selectedIcon: Icon(Icons.school),
                   label: 'Courses',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.favorite_border),
+                  selectedIcon: Icon(Icons.favorite),
+                  label: 'Favorites',
                 ),
                 NavigationDestination(
                   icon: Icon(Icons.person_outline),
@@ -156,6 +163,11 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
                     icon: Icon(Icons.school_outlined),
                     selectedIcon: Icon(Icons.school),
                     label: Text('Courses'),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.favorite_border),
+                    selectedIcon: Icon(Icons.favorite),
+                    label: Text('Favorites'),
                   ),
                   NavigationRailDestination(
                     icon: Icon(Icons.person_outline),

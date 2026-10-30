@@ -1,6 +1,8 @@
 
 import 'package:flutter/material.dart';
 import '../models/course.dart';
+import 'package:provider/provider.dart';
+import '../providers/course_provider.dart';
 
 // Nama: Neza Aulia Safitri
 // NIM: 2415051035
@@ -28,6 +30,8 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
   @override
   Widget build(BuildContext context) {
     final course = widget.course;
+    final provider = context.watch<CourseProvider>();
+    final isFavorite = provider.isFavorite(course.code);
 
     return Scaffold(
       appBar: AppBar(
@@ -101,21 +105,23 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: () {
-                  widget.onToggleFavorite();
-                  Navigator.pop(context);
+                  context
+                      .read<CourseProvider>()
+                      .toggleFavorite(course.code);
                 },
                 icon: Icon(
-                  widget.isFavorite
+                  isFavorite
                       ? Icons.favorite
                       : Icons.favorite_border,
                 ),
                 label: Text(
-                  widget.isFavorite
+                  isFavorite
                       ? 'Hapus dari Favorit'
                       : 'Pilih / Favorite Course',
                 ),
               ),
             ),
+            
             const SizedBox(height: 24),
             const Divider(),
             const SizedBox(height: 12),
