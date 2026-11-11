@@ -1,8 +1,13 @@
+
 import 'package:flutter/material.dart';
+
 import '../widgets/student_identity_card.dart';
 import '../services/auth_service.dart';
+import '../services/profile_service.dart';
+
 // Nama: Neza Aulia Safitri
 // NIM: 2415051035
+
 class ProfilePage extends StatefulWidget {
   final VoidCallback onSubmitFeedback;
 
@@ -18,7 +23,8 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   final AuthService authService = AuthService.instance;
 
-late Future<Map<String, dynamic>?> profileFuture;
+  late Future<UserProfile?> profileFuture;
+
   final formKey = GlobalKey<FormState>();
 
   late final TextEditingController nameController;
@@ -32,7 +38,8 @@ late Future<Map<String, dynamic>?> profileFuture;
   @override
   void initState() {
     super.initState();
-    profileFuture = authService.getUserProfile();
+
+    profileFuture = ProfileService().getMyProfile();
 
     nameController = TextEditingController(
       text: studentName,
@@ -102,17 +109,19 @@ late Future<Map<String, dynamic>?> profileFuture;
     widget.onSubmitFeedback();
     commentController.clear();
   }
-Future<void> logout() async {
-  try {
-    await authService.logout();
-  } catch (e) {
-    if (!mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Logout gagal: $e')),
-    );
+  Future<void> logout() async {
+    try {
+      await authService.logout();
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Logout gagal: $e')),
+      );
+    }
   }
-}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -134,55 +143,71 @@ Future<void> logout() async {
                 ),
               ),
               const SizedBox(height: 20),
-              FutureBuilder<Map<String, dynamic>?>(
-  future: profileFuture,
-  builder: (context, snapshot) {
-    if (snapshot.connectionState == ConnectionState.waiting) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
-    }
 
-    if (snapshot.hasError) {
-      return Text('Gagal memuat profil: ${snapshot.error}');
-    }
+              FutureBuilder<UserProfile?>(
+                future: profileFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState ==
+                      ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
 
-    final profile = snapshot.data;
-    final email = authService.currentUser?.email ?? '-';
+                  if (snapshot.hasError ||
+                      snapshot.data == null) {
+                    return const Text(
+                      'Gagal memuat profil',
+                    );
+                  }
 
-    return Card(
-      child: ListTile(
-        leading: const CircleAvatar(
-          child: Icon(Icons.person),
-        ),
-        title: Text(
-          profile?['full_name'] ?? 'Nama tidak tersedia',
-        ),
-        subtitle: Text(
-          'Email: $email\nRole: ${profile?['role'] ?? 'Belum tersedia'}',
-        ),
-        isThreeLine: true,
-      ),
-    );
-  },
-),
+                  final profile = snapshot.data!;
+
+                  return Card(
+                    child: Column(
+                      children: [
+                        ListTile(
+                          leading: const Icon(Icons.person),
+                          title: const Text('Nama'),
+                          subtitle: Text(
+                            profile.name.isEmpty
+                                ? '-'
+                                : profile.name,
+                          ),
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.email),
+                          title: const Text('Email'),
+                          subtitle: Text(profile.email),
+                        ),
+                        ListTile(
+                          leading: const Icon(Icons.badge),
+                          title: const Text('Role'),
+                          subtitle: Text(profile.role),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+
+              const SizedBox(height: 16),
+
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: logout,
+                  icon: const Icon(Icons.logout),
+                  label: const Text('Logout'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ),
+
               const SizedBox(height: 28),
-const SizedBox(height: 16),
 
-SizedBox(
-  width: double.infinity,
-  child: ElevatedButton.icon(
-    onPressed: logout,
-    icon: const Icon(Icons.logout),
-    label: const Text('Logout'),
-    style: ElevatedButton.styleFrom(
-      backgroundColor: Colors.red,
-      foregroundColor: Colors.white,
-    ),
-  ),
-),
-
-const SizedBox(height: 28),
               const Text(
                 'Feedback',
                 style: TextStyle(
