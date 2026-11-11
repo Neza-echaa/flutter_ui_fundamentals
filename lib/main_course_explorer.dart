@@ -12,6 +12,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'config/supabase_config.dart';
 import 'services/course_supabase_service.dart';
 import 'services/course_data_source.dart';
+import 'screens/auth_gate.dart';
 
 const String studentName = 'Neza Aulia Safitri';
 const String studentId = '2415051035';
@@ -54,7 +55,9 @@ class CourseExplorerApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: const ResponsiveShell(),
+      home: const AuthGate(
+        authenticatedPage: ResponsiveShell(),
+      ),
     );
   }
 }
