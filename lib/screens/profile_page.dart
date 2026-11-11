@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/student_identity_card.dart';
-
+import '../services/auth_service.dart';
 // Nama: Neza Aulia Safitri
 // NIM: 2415051035
 class ProfilePage extends StatefulWidget {
@@ -16,6 +16,9 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  final AuthService authService = AuthService.instance;
+
+late Future<Map<String, dynamic>?> profileFuture;
   final formKey = GlobalKey<FormState>();
 
   late final TextEditingController nameController;
@@ -29,6 +32,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
+    profileFuture = authService.getUserProfile();
 
     nameController = TextEditingController(
       text: studentName,
@@ -98,7 +102,17 @@ class _ProfilePageState extends State<ProfilePage> {
     widget.onSubmitFeedback();
     commentController.clear();
   }
+Future<void> logout() async {
+  try {
+    await authService.logout();
+  } catch (e) {
+    if (!mounted) return;
 
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Logout gagal: $e')),
+    );
+  }
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -120,9 +134,55 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
               const SizedBox(height: 20),
-              const StudentIdentityCard(),
-              const SizedBox(height: 28),
+              FutureBuilder<Map<String, dynamic>?>(
+  future: profileFuture,
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
 
+    if (snapshot.hasError) {
+      return Text('Gagal memuat profil: ${snapshot.error}');
+    }
+
+    final profile = snapshot.data;
+    final email = authService.currentUser?.email ?? '-';
+
+    return Card(
+      child: ListTile(
+        leading: const CircleAvatar(
+          child: Icon(Icons.person),
+        ),
+        title: Text(
+          profile?['full_name'] ?? 'Nama tidak tersedia',
+        ),
+        subtitle: Text(
+          'Email: $email\nRole: ${profile?['role'] ?? 'Belum tersedia'}',
+        ),
+        isThreeLine: true,
+      ),
+    );
+  },
+),
+              const SizedBox(height: 28),
+const SizedBox(height: 16),
+
+SizedBox(
+  width: double.infinity,
+  child: ElevatedButton.icon(
+    onPressed: logout,
+    icon: const Icon(Icons.logout),
+    label: const Text('Logout'),
+    style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.red,
+      foregroundColor: Colors.white,
+    ),
+  ),
+),
+
+const SizedBox(height: 28),
               const Text(
                 'Feedback',
                 style: TextStyle(
