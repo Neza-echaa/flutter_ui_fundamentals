@@ -13,6 +13,8 @@ import 'config/supabase_config.dart';
 import 'services/course_supabase_service.dart';
 import 'services/course_data_source.dart';
 import 'screens/auth_gate.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 const String studentName = 'Neza Aulia Safitri';
 const String studentId = '2415051035';
@@ -21,22 +23,27 @@ const String apiUrl = 'https://course-api-pearl.vercel.app/courses';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Inisialisasi Firebase
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // Inisialisasi Supabase
   await Supabase.initialize(
-  url: SupabaseConfig.supabaseUrl,
-  publishableKey: SupabaseConfig.supabasePublishableKey,
-);
+    url: SupabaseConfig.supabaseUrl,
+    publishableKey: SupabaseConfig.supabasePublishableKey,
+  );
 
   final CourseDataSource dataSource = CourseSupabaseService();
-final repository = CourseRepository(dataSource);
+  final repository = CourseRepository(dataSource);
 
-runApp(
-  ChangeNotifierProvider(
-    create: (_) => CourseProvider(repository)..loadCourses(),
-    child: const CourseExplorerApp(),
-  ),
-);
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => CourseProvider(repository)..loadCourses(),
+      child: const CourseExplorerApp(),
+    ),
+  );
 }
-
 // ============================================================
 // APP
 // ============================================================
