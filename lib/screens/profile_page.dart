@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import '../widgets/student_identity_card.dart';
 import '../services/auth_service.dart';
 import '../services/profile_service.dart';
-
+import '../widgets/role_guard.dart';
 // Nama: Neza Aulia Safitri
 // NIM: 2415051035
 
@@ -185,6 +185,24 @@ class _ProfilePageState extends State<ProfilePage> {
                           title: const Text('Role'),
                           subtitle: Text(profile.role),
                         ),
+
+RoleGuard(
+  role: profile.role,
+  allowed: const ['owner', 'admin'],
+  child: const Padding(
+    padding: EdgeInsets.all(12),
+    child: Card(
+      child: ListTile(
+        leading: Icon(Icons.admin_panel_settings),
+        title: Text('Kelola Course'),
+        subtitle: Text(
+          'Fitur pengelolaan course khusus owner dan admin.',
+        ),
+      ),
+    ),
+  ),
+),
+
                       ],
                     ),
                   );
